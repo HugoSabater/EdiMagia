@@ -4,83 +4,279 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdiMagIA - Editor de Imágenes</title>
-    <!-- Google Fonts: Inter -->
+    <title>EdiMagIA - Estudio Creativo</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Iconos: Remix Icon (Alternative to FontAwesome for cleaner look) -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Remix Icons -->
     <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
-    <!-- Estilos -->
-    <link rel="stylesheet" href="style.css">
+
+    <!-- Fabric.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+
+    <!-- Configuración Custom de Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        primary: {
+                            DEFAULT: '#0056b3', /* Azul Profesional */
+                            hover: '#004494',
+                            light: '#e7f1ff'
+                        },
+                        surface: {
+                            DEFAULT: '#f8f9fa', /* Fondo Principal */
+                            panel: '#ffffff',
+                            border: '#e9ecef'
+                        }
+                    },
+                    boxShadow: {
+                        'canvas': '0 20px 40px -10px rgba(0,0,0,0.1), 0 10px 20px -10px rgba(0,0,0,0.05)',
+                        'floating': '0 4px 12px rgba(0,0,0,0.08)'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos personalizados para inputs que Tailwind no cubre fácilmente */
+        input[type="range"] {
+            -webkit-appearance: none;
+            background: transparent;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            background: #0056b3;
+            margin-top: -6px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        input[type="range"]::-webkit-slider-runnable-track {
+            width: 100%;
+            height: 4px;
+            cursor: pointer;
+            background: #dee2e6;
+            border-radius: 2px;
+        }
+
+        /* Acordeón limpio */
+        details>summary {
+            list-style: none;
+        }
+
+        details>summary::-webkit-details-marker {
+            display: none;
+        }
+    </style>
 </head>
 
-<body>
+<body class="bg-surface h-screen flex flex-col text-slate-700 overflow-hidden">
 
-    <div class="app-container">
-        <!-- Sidebar de Herramientas -->
-        <aside class="sidebar">
-            <div class="logo">
-                <i class="ri-brush-line"></i> EdiMagIA
+    <!-- Header Profesional -->
+    <header class="h-16 bg-surface-panel border-b border-surface-border flex items-center justify-between px-6 z-20">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 bg-primary text-white rounded-lg flex items-center justify-center shadow-sm">
+                <i class="ri-edit-circle-line text-xl"></i>
             </div>
+            <span class="text-lg font-semibold tracking-tight text-slate-800">EdiMagIA</span>
+        </div>
 
-            <div class="tools-section">
-                <h3>Imagen</h3>
-                <label for="imgLoader" class="btn btn-primary">
-                    <i class="ri-upload-2-line"></i> Subir Imagen
-                </label>
-                <input type="file" id="imgLoader" accept="image/*">
-            </div>
+        <button id="downloadBtn"
+            class="bg-primary hover:bg-primary-hover text-white px-5 py-2 rounded-lg font-medium text-sm transition-all shadow-sm hover:shadow-md flex items-center gap-2">
+            <i class="ri-download-cloud-2-line"></i>
+            <span>Exportar PNG</span>
+        </button>
+    </header>
 
-            <div class="tools-section">
-                <h3>Texto</h3>
-                <button id="addTextBtn" class="btn btn-secondary">
-                    <i class="ri-text"></i> Añadir Texto
-                </button>
-                <div class="control-group">
-                    <label>Color</label>
-                    <input type="color" id="textColor" value="#ffffff">
+    <!-- Cuerpo Principal -->
+    <div class="flex flex-1 overflow-hidden">
+
+        <!-- Sidebar Moderna -->
+        <aside class="w-80 bg-surface-panel border-r border-surface-border flex flex-col overflow-y-auto z-10">
+
+            <!-- Herramientas (Acordeón) -->
+            <details class="group border-b border-surface-border" open>
+                <summary
+                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors select-none">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <i class="ri-tools-line text-sm"></i> Herramientas
+                    </div>
+                    <i class="ri-arrow-down-s-line text-slate-400 transition-transform group-open:rotate-180"></i>
+                </summary>
+
+                <div class="px-4 pb-6 space-y-3">
+                    <!-- Subir Imagen Compacto -->
+                    <label
+                        class="flex items-center gap-3 w-full p-3 border border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-primary hover:bg-primary-light transition-all group/upload">
+                        <div
+                            class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover/upload:bg-white text-slate-500 group-hover/upload:text-primary">
+                            <i class="ri-image-add-line"></i>
+                        </div>
+                        <div class="flex flex-col">
+                            <span class="text-sm font-medium text-slate-700">Subir Imagen</span>
+                            <span class="text-xs text-slate-400">JPG, PNG</span>
+                        </div>
+                        <input type="file" id="imageUpload" accept="image/*" class="hidden" />
+                    </label>
+
+                    <!-- Botón Texto Moderno -->
+                    <button id="addTextBtn"
+                        class="flex items-center gap-3 w-full p-3 border border-slate-200 rounded-lg hover:border-slate-300 hover:bg-slate-50 transition-all text-left">
+                        <div class="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600">
+                            <i class="ri-text"></i>
+                        </div>
+                        <span class="text-sm font-medium text-slate-700">Añadir Texto</span>
+                    </button>
+                </div>
+            </details>
+
+            <!-- Propiedades (Acordeón) -->
+            <details class="group border-b border-surface-border" open>
+                <summary
+                    class="flex items-center justify-between p-4 cursor-pointer hover:bg-slate-50 transition-colors select-none">
+                    <div class="flex items-center gap-2 text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        <i class="ri-equalizer-line text-sm"></i> Propiedades
+                    </div>
+                    <i class="ri-arrow-down-s-line text-slate-400 transition-transform group-open:rotate-180"></i>
+                </summary>
+
+                <!-- Panel Condicional -->
+                <div id="controlsPanel" class="px-4 pb-6 hidden space-y-6">
+
+                    <!-- Color Picker Integrado -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-500 mb-2">Color de Relleno</label>
+                        <div class="flex items-center gap-3 p-1 border border-slate-200 rounded-lg">
+                            <div
+                                class="relative w-10 h-10 rounded overflow-hidden shadow-inner border border-slate-100">
+                                <input type="color" id="colorPicker" value="#000000"
+                                    class="absolute -top-2 -left-2 w-16 h-16 cursor-pointer p-0 border-0">
+                            </div>
+                            <span id="colorValue" class="text-sm font-mono text-slate-600 uppercase">#000000</span>
+                        </div>
+                    </div>
+
+                    <!-- Fuentes (Solo Texto) -->
+                    <div id="fontControls">
+                        <label class="block text-xs font-semibold text-slate-500 mb-2">Tipografía</label>
+                        <div class="relative">
+                            <select id="fontFamily"
+                                class="w-full appearance-none bg-white border border-slate-200 text-slate-700 text-sm rounded-lg pl-3 pr-8 py-2.5 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
+                                <option value="Inter">Inter</option>
+                                <option value="Arial">Arial</option>
+                                <option value="Times New Roman">Times New Roman</option>
+                                <option value="Courier New">Courier New</option>
+                            </select>
+                            <i
+                                class="ri-arrow-down-s-line absolute right-3 top-2.5 text-slate-400 pointer-events-none"></i>
+                        </div>
+                    </div>
+
+                    <!-- Filtros (Solo Imagen) -->
+                    <div id="filterControls" class="hidden space-y-5">
+                        <!-- Brillo -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label class="text-xs font-semibold text-slate-500">Brillo</label>
+                                <span id="brightnessValue" class="text-xs font-mono text-slate-400">0.00</span>
+                            </div>
+                            <input type="range" id="brightness" min="-1" max="1" step="0.05" value="0" class="w-full">
+                        </div>
+
+                        <!-- Contraste -->
+                        <div>
+                            <div class="flex justify-between mb-2">
+                                <label class="text-xs font-semibold text-slate-500">Contraste</label>
+                                <span id="contrastValue" class="text-xs font-mono text-slate-400">0.00</span>
+                            </div>
+                            <input type="range" id="contrast" min="-1" max="1" step="0.05" value="0" class="w-full">
+                        </div>
+
+                        <button id="resetFiltersBtn"
+                            class="text-xs text-primary hover:text-primary-hover font-medium flex items-center gap-1">
+                            <i class="ri-refresh-line"></i> Resetear ajustes
+                        </button>
+                    </div>
+
+                    <!-- Capas -->
+                    <div class="pt-4 border-t border-slate-100">
+                        <label class="block text-xs font-semibold text-slate-500 mb-2">Capas</label>
+                        <div class="grid grid-cols-2 gap-2">
+                            <button id="bringForwardBtn"
+                                class="flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded hover:bg-slate-50 text-slate-600 text-xs font-medium transition-colors"
+                                title="Subir nivel">
+                                <i class="ri-bring-forward"></i> Subir
+                            </button>
+                            <button id="sendBackwardsBtn"
+                                class="flex items-center justify-center gap-1.5 px-3 py-2 bg-white border border-slate-200 rounded hover:bg-slate-50 text-slate-600 text-xs font-medium transition-colors"
+                                title="Bajar nivel">
+                                <i class="ri-send-backward"></i> Bajar
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Botón Eliminar -->
+                    <button id="deleteBtn"
+                        class="w-full mt-4 flex items-center justify-center gap-2 bg-red-50 hover:bg-red-100 text-red-600 px-4 py-2.5 rounded-lg text-sm font-medium transition-colors group">
+                        <i class="ri-delete-bin-line group-hover:scale-110 transition-transform"></i> Eliminar Objeto
+                    </button>
+                </div>
+
+                <!-- Mensaje Sin Selección -->
+                <div id="noSelectionMsg" class="px-8 py-12 flex flex-col items-center text-center">
+                    <div
+                        class="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4 text-slate-300">
+                        <i class="ri-cursor-line text-2xl"></i>
+                    </div>
+                    <p class="text-sm text-slate-400">Selecciona un elemento en el lienzo para ver sus propiedades.</p>
+                </div>
+            </details>
+        </aside>
+
+        <!-- Área Canvas -->
+        <main class="flex-1 bg-surface flex flex-col relative">
+
+            <!-- Workspace Centrado -->
+            <div class="flex-1 flex items-center justify-center p-8 overflow-auto">
+                <div class="relative shadow-canvas bg-white transition-all duration-300">
+                    <!-- Canvas Real -->
+                    <canvas id="canvas"></canvas>
                 </div>
             </div>
 
-            <div class="tools-section">
-                <h3>Filtros</h3>
-                <button id="grayscaleBtn" class="btn btn-outline">
-                    <i class="ri-contrast-drop-line"></i> Escala de Grises
-                </button>
-                <button id="sepiaBtn" class="btn btn-outline">
-                    <i class="ri-image-fill"></i> Sepia
-                </button>
-                <button id="resetFiltersBtn" class="btn btn-outline">
-                    <i class="ri-refresh-line"></i> Reset Filtros
-                </button>
-            </div>
-
-            <div class="actions-section">
-                <button id="downloadBtn" class="btn btn-success">
-                    <i class="ri-download-line"></i> Exportar PNG
-                </button>
-                <button id="clearBtn" class="btn btn-danger">
-                    <i class="ri-delete-bin-line"></i> Limpiar Todo
-                </button>
-            </div>
-
-            <div class="footer-note">
-                <small>Hecho con ❤️ y un poco de IA</small>
-            </div>
-        </aside>
-
-        <!-- Área Principal (Canvas) -->
-        <main class="workspace">
-            <div class="canvas-wrapper">
-                <canvas id="c"></canvas>
-            </div>
+            <!-- StatusBar -->
+            <footer
+                class="bg-white border-t border-surface-border h-9 px-4 flex items-center justify-between text-xs text-slate-400 select-none">
+                <div class="flex items-center gap-4">
+                    <span class="flex items-center gap-1"><i class="ri-drag-move-line"></i> Arrastrar</span>
+                    <span class="flex items-center gap-1"><i class="ri-corner-up-right-double-line"></i> Rotar</span>
+                    <span class="flex items-center gap-1"><i class="ri-fullscreen-line"></i> Escalar</span>
+                </div>
+                <div>
+                    Presiona <kbd
+                        class="font-sans bg-slate-100 px-1 rounded border border-slate-200 text-slate-500">Supr</kbd>
+                    para eliminar
+                </div>
+            </footer>
         </main>
     </div>
 
-    <!-- Fabric.js CDN -->
-    <script src="https://unpkg.com/fabric@5.3.0/dist/fabric.min.js"></script>
-    <!-- Script Principal -->
+    <!-- Script Lógica -->
     <script src="script.js"></script>
 </body>
 

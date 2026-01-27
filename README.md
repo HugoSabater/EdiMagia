@@ -1,56 +1,30 @@
-# 🎨 EdiMagIA - Editor de Imágenes Web
+# 🎨 EdiMagIA - Editor de Imágenes Profesional
 
-Un editor de imágenes moderno, rápido y elegante que funciona directamente en tu navegador. Diseñado como parte del portfolio de Desarrollo de Aplicaciones Web (DAW).
+Un editor de imágenes moderno y potente, desarrollado con **Vanilla JavaScript**, **Fabric.js** y **Tailwind CSS**.
 
-![App Screenshot](https://via.placeholder.com/800x400?text=Vista+Previa+de+EdiMagIA) <!-- Puedes reemplazar esto con una captura real más tarde -->
+![App Screenshot](https://via.placeholder.com/800x400?text=Vista+Previa+de+EdiMagIA)
 
-## ✨ Características
+## 🎓 Competencias Técnicas & Funcionalidades Avanzadas
 
-- **Diseño Premium**: Interfaz oscura moderna utilizando variables CSS y Glassmorphism.
-- **Manipulación de Objetos**: Mueve, escala y rota imágenes y texto gracias a **Fabric.js**.
-- **Filtros en Tiempo Real**: Aplica escala de grises o sepia con un solo clic.
-- **Exportación HD**: Descarga tu creación como un archivo PNG de alta calidad.
-- **Privacidad**: Todo el procesamiento se realiza en el navegador (Client-Side), nada se sube a la nube.
+Este proyecto no es solo una interfaz visual, demuestra la implementación de conceptos complejos de desarrollo web y manipulación gráfica.
 
-## 🤖 Desarrollo con IA (Honestidad Académica)
+| Funcionalidad | Concepto / Competencia Técnica | Descripción Técnica |
+| :--- | :--- | :--- |
+| **Filtros (Brillo/Contraste)** | **Manipulación de Píxeles (Matrices)** | Comprensión de cómo se procesan los datos gráficos. Se accede a la matriz de píxeles (`ImageData`) y se aplican transformaciones algebraicas para alterar los valores RGBA en tiempo real. |
+| **Capas (Subir/Bajar)** | **Estructuras de Datos (Pila/Stack)** | Manejo del orden de renderizado (Z-Index). Los objetos en Canvas se almacenan en un array; funciones como `bringForward` modifican el ndice del objeto en ese array, alterando el orden de pintado. |
+| **Renderizado Condicional** | **Lógica de UI Dinámica** | El panel de control reacciona al estado de la aplicación. Se detecta el tipo de objeto (`activeObject.type === 'image'`) para mostrar selectivamente paneles de Filtros o Texto, mejorando la UX. |
+| **Eventos de Teclado** | **Event Listeners Globales** | Gestión avanzada del DOM. Escucha de eventos `keydown` globales para atajos como `Delete`, implementando prevención de errores (e.g., no borrar si se está editando texto). |
+| **Exportación HD** | **Data URLs & Blobs** | Conversión del estado del Canvas a una imagen estática PNG mediante `toDataURL`, manejando multiplicadores de resolución para garantizar calidad Retina/HiDPI. |
 
-Este proyecto ha sido desarrollado utilizando **Google Gemini** como asistente de codificación para agilizar la estructura inicial y la lógica base de Fabric.js.
+## 🚀 Cómo empezar
 
-- **Rol de la IA**: Generación del esqueleto HTML, lógica base de inicialización del Canvas y sugerencia de estructura CSS.
-- **Aportación Propia**:
-    - Implementación manual de la estética "Premium" (Dark Mode, paleta de colores personalizada).
-    - Lógica de filros (Grayscale/Sepia) y botón de "Reset".
-    - Refactorización del código para asegurar legibilidad y buenas prácticas.
-    - Explicación técnica detallada (ver abajo).
+1.  Clona el repositorio.
+2.  Abre `index.html` en tu navegador.
+3.  ¡Empieza a crear! No requiere instalación (`npm`) ni compilación.
 
-> *El código resultante ha sido revisado, entendido y modificado para cumplir con los estándares de calidad del ciclo formativo.*
+## 🛠 Tecnologías
 
-## 🔧 Documentación Técnica
-
-### 1. Librería Gráfica: Fabric.js
-Para manejar el `canvas` de HTML5 de forma avanzada, utilizamos **Fabric.js**.
-En lugar de instalarla vía `npm` (que requeriría un entorno de construcción como Webpack/Vite), la hemos importado directamente vía **CDN** para mantener el proyecto ligero y ejecutable en cualquier navegador sin dependencias.
-
-```html
-<script src="https://unpkg.com/fabric@5.3.0/dist/fabric.min.js"></script>
-```
-
-### 2. Evento de Descarga (Exportación)
-La funcionalidad de descarga no requiere un servidor. Utilizamos el método nativo de HTML5 `canvas.toDataURL()` para convertir los píxeles del lienzo en una cadena Base64 (formato imagen).
-Luego, creamos un enlace temporal `<a>` en el DOM, le asignamos esa URL y simulamos un clic.
-
-**Snippet del código (`script.js`):**
-```javascript
-const dataURL = canvas.toDataURL({ format: 'png', quality: 1 });
-const link = document.createElement('a');
-link.download = 'imagen-editada.png';
-link.href = dataURL;
-link.click(); // Dispara la descarga automática
-```
-
----
-
-## 🚀 Cómo usarlo
-1. Clona este repositorio o descarga los archivos.
-2. Abre el archivo `index.html` en tu navegador favorito.
-3. ¡Sube una imagen y empieza a crear!
+*   **HTML5 Canvas**: Motor de renderizado gráfico.
+*   **Fabric.js**: Librería para el modelo de objetos sobre Canvas.
+*   **Tailwind CSS**: Framework de utilidades para una UI moderna y responsiva.
+*   **JavaScript (ES6+)**: Lógica pura sin frameworks reactivos.
