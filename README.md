@@ -15,6 +15,8 @@ Este proyecto no es solo una interfaz visual, demuestra la implementación de co
 | **Renderizado Condicional** | **Lógica de UI Dinámica** | El panel de control reacciona al estado de la aplicación. Se detecta el tipo de objeto (`activeObject.type === 'image'`) para mostrar selectivamente paneles de Filtros o Texto, mejorando la UX. |
 | **Eventos de Teclado** | **Event Listeners Globales** | Gestión avanzada del DOM. Escucha de eventos `keydown` globales para atajos como `Delete`, implementando prevención de errores (e.g., no borrar si se está editando texto). |
 | **Exportación HD** | **Data URLs & Blobs** | Conversión del estado del Canvas a una imagen estática PNG mediante `toDataURL`, manejando multiplicadores de resolución para garantizar calidad Retina/HiDPI. |
+| **Herramienta de Recorte** | **Geometría de Coordenadas & Callbacks** | Implementación de un sistema de recorte no destructivo. Se calcula la intersección visual, se exporta el área específica con `toDataURL` y se reimporta la imagen procesada, gestionando referencias nulas y asincronía. |
+| **Historial (Undo/Redo)** | **Patrón Monitor/Memento** | Sistema robusto de gestión de estado. Cada acción guarda un snapshot comprimido (JSON) del canvas. Se gestionan pilas (stacks) para navegar temporalmente por los cambios sin perder consistencia. |
 
 ## 🚀 Cómo empezar
 
