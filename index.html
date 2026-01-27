@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EdiMagIA - Editor de Imágenes</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Iconos: Remix Icon (Alternative to FontAwesome for cleaner look) -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css" rel="stylesheet">
+    <!-- Estilos -->
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar de Herramientas -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="ri-brush-line"></i> EdiMagIA
+            </div>
+
+            <div class="tools-section">
+                <h3>Imagen</h3>
+                <label for="imgLoader" class="btn btn-primary">
+                    <i class="ri-upload-2-line"></i> Subir Imagen
+                </label>
+                <input type="file" id="imgLoader" accept="image/*">
+            </div>
+
+            <div class="tools-section">
+                <h3>Texto</h3>
+                <button id="addTextBtn" class="btn btn-secondary">
+                    <i class="ri-text"></i> Añadir Texto
+                </button>
+                <div class="control-group">
+                    <label>Color</label>
+                    <input type="color" id="textColor" value="#ffffff">
+                </div>
+            </div>
+
+            <div class="tools-section">
+                <h3>Filtros</h3>
+                <button id="grayscaleBtn" class="btn btn-outline">
+                    <i class="ri-contrast-drop-line"></i> Escala de Grises
+                </button>
+                <button id="sepiaBtn" class="btn btn-outline">
+                    <i class="ri-image-fill"></i> Sepia
+                </button>
+                <button id="resetFiltersBtn" class="btn btn-outline">
+                    <i class="ri-refresh-line"></i> Reset Filtros
+                </button>
+            </div>
+
+            <div class="actions-section">
+                <button id="downloadBtn" class="btn btn-success">
+                    <i class="ri-download-line"></i> Exportar PNG
+                </button>
+                <button id="clearBtn" class="btn btn-danger">
+                    <i class="ri-delete-bin-line"></i> Limpiar Todo
+                </button>
+            </div>
+
+            <div class="footer-note">
+                <small>Hecho con ❤️ y un poco de IA</small>
+            </div>
+        </aside>
+
+        <!-- Área Principal (Canvas) -->
+        <main class="workspace">
+            <div class="canvas-wrapper">
+                <canvas id="c"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <!-- Fabric.js CDN -->
+    <script src="https://unpkg.com/fabric@5.3.0/dist/fabric.min.js"></script>
+    <!-- Script Principal -->
+    <script src="script.js"></script>
+</body>
+
+</html>
