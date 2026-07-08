@@ -1,6 +1,8 @@
 import { HistoryManager } from './history.js';
 import { GuidesManager } from './guides.js';
 import { CropManager } from './crop.js';
+import { FilterManager } from './filters.js';
+import { OCRManager } from './ocr.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log("[Diagnostic] DOMContentLoaded fired. Initializing application...");
@@ -26,7 +28,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyManager = new HistoryManager(canvas);
     const guidesManager = new GuidesManager(canvas);
     const cropManager = new CropManager(canvas);
-    console.log("[Diagnostic] Modules initialized (History, Guides, Crop).");
+    const filterManager = new FilterManager(canvas);
+    const ocrManager = new OCRManager(canvas); // Nuevo (OCR)
+    console.log("[Diagnostic] Modules initialized (History, Guides, Crop, Filters, OCR).");
 
     // Conectar botones de historial UI
     const undoBtn = document.getElementById('undoBtn');
@@ -60,6 +64,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorValue = document.getElementById('colorValue');
     const fontFamilySelect = document.getElementById('fontFamily');
     const fontControls = document.getElementById('fontControls');
+
+    // Filtros Artísticos (Botones)
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const filterType = e.target.dataset.filter;
+            console.log(`[Diagnostic] Aplicando filtro: ${filterType}`);
+            filterManager.applyFilter(filterType);
+            historyManager.saveState();
+        });
+    });
+
+    // Botón OCR
+    const ocrBtn = document.getElementById('ocrBtn');
+    if (ocrBtn) {
+        ocrBtn.addEventListener('click', () => {
+            console.log("[Diagnostic] Click: OCR");
+            ocrManager.recognizeText();
+        });
+    }
 
     // Controles Avanzados (Filtros, Capas)
     const filterControls = document.getElementById('filterControls');
@@ -204,6 +227,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (fontControls) fontControls.classList.add('hidden');
                 if (filterControls) filterControls.classList.remove('hidden');
 
+                // Habilitar OCR
+                const ocrBtn = document.getElementById('ocrBtn');
+                if (ocrBtn) ocrBtn.disabled = false;
+
                 // Leer filtros
                 let brightVal = 0;
                 let contrastVal = 0;
@@ -222,6 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (contrastValue) contrastValue.textContent = parseFloat(contrastVal).toFixed(2);
                 }
             } else {
+                const ocrBtn = document.getElementById('ocrBtn');
+                if (ocrBtn) ocrBtn.disabled = true;
+
                 if (fontControls) fontControls.classList.add('hidden');
                 if (filterControls) filterControls.classList.add('hidden');
             }
@@ -376,9 +406,46 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log("[Diagnostic] Click: Download");
             canvas.discardActiveObject();
             canvas.requestRenderAll();
-            const dataURL = canvas.toDataURL({ format: 'png', quality: 1, multiplier: 2 });
+
+            // 1. Calcular Bounding Box de TODOS los objetos
+            const objects = canvas.getObjects();
+            if (objects.length === 0) {
+                alert("El lienzo está vacío.");
+                return;
+            }
+
+            // Usamos un grupo temporal para calcular límites sin alterar el canvas real
+            // (Alternativamente, iterar min/max left/top es más seguro para no romper selection)
+            let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+
+            objects.forEach(obj => {
+                const rect = obj.getBoundingRect(true); // true = absoluto
+                if (rect.left < minX) minX = rect.left;
+                if (rect.top < minY) minY = rect.top;
+                if (rect.left + rect.width > maxX) maxX = rect.left + rect.width;
+                if (rect.top + rect.height > maxY) maxY = rect.top + rect.height;
+            });
+
+            // Sin margen extra para ajustarse al máximo al contenido
+            const padding = 0;
+            minX = Math.max(0, minX - padding);
+            minY = Math.max(0, minY - padding);
+            const width = Math.min(canvas.width - minX, (maxX - minX));
+            const height = Math.min(canvas.height - minY, (maxY - minY));
+
+            // 2. Exportar solo esa área
+            const dataURL = canvas.toDataURL({
+                format: 'png',
+                quality: 1,
+                multiplier: 2,
+                left: minX,
+                top: minY,
+                width: width,
+                height: height
+            });
+
             const link = document.createElement('a');
-            link.download = 'edimagia-export.png';
+            link.download = 'edimagia-smart-export.png';
             link.href = dataURL;
             document.body.appendChild(link);
             link.click();
