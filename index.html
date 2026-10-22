@@ -4,7 +4,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EdiMagIA - Estudio Creativo</title>
+    <title>EdiMagIA - Estudio Creativo &amp; Editor Gráfico Web</title>
+    <meta name="description" content="Editor gráfico web ligero y modular con HTML5 Canvas, Fabric.js, filtros avanzados, OCR de texto, recorte inteligente y motor de historial Undo/Redo.">
+    <meta name="theme-color" content="#0056b3">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://hugosabater.github.io/EdiMagia/">
+    <meta property="og:title" content="EdiMagIA - Estudio Creativo &amp; Editor Gráfico Web">
+    <meta property="og:description" content="Editor gráfico web ligero y modular con HTML5 Canvas, filtros avanzados, recorte con máscara y motor de historial Undo/Redo.">
+    <meta property="og:image" content="https://raw.githubusercontent.com/HugoSabater/EdiMagia/main/preview.png">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:url" content="https://hugosabater.github.io/EdiMagia/">
+    <meta property="twitter:title" content="EdiMagIA - Estudio Creativo &amp; Editor Gráfico Web">
+    <meta property="twitter:description" content="Editor gráfico web ligero y modular con HTML5 Canvas, filtros avanzados, recorte con máscara y motor de historial Undo/Redo.">
+    <meta property="twitter:image" content="https://raw.githubusercontent.com/HugoSabater/EdiMagia/main/preview.png">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -102,13 +118,13 @@
 
         <div class="flex items-center gap-2">
             <div class="flex bg-slate-100 rounded-lg p-1 mr-2">
-                <button id="undoBtn"
-                    class="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all"
+                <button id="undoBtn" disabled
+                    class="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-500"
                     title="Deshacer (Ctrl+Z)">
                     <i class="ri-arrow-go-back-line"></i>
                 </button>
-                <button id="redoBtn"
-                    class="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all"
+                <button id="redoBtn" disabled
+                    class="p-2 text-slate-500 hover:text-slate-700 hover:bg-white rounded transition-all disabled:opacity-30 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-slate-500"
                     title="Rehacer (Ctrl+Y)">
                     <i class="ri-arrow-go-forward-line"></i>
                 </button>

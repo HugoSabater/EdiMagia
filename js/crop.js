@@ -1,10 +1,12 @@
 /**
- * Herramienta de Recorte
+ * Herramienta de Recorte (CropManager)
+ * Incluye máscara de sombreado exterior (evenodd) para previsualización precisa del recorte.
  */
 export class CropManager {
     constructor(canvas) {
         this.canvas = canvas;
         this.active = false;
+        this.isExporting = false;
         this.selectionRect = null;
         this.mainImage = null; // La imagen que estamos recortando
 
@@ -41,10 +43,13 @@ export class CropManager {
         this.canvas.on('selection:created', () => this.checkSelection());
         this.canvas.on('selection:updated', () => this.checkSelection());
         this.canvas.on('selection:cleared', () => this.checkSelection());
+
+        // Overlay sombreado continuo fuera del área de recorte
+        this.canvas.on('after:render', () => this.drawCropOverlay());
     }
 
     checkSelection() {
-        if (this.active) return; // Ignore selection changes while cropping
+        if (this.active) return; // Ignorar cambios de selección durante el recorte
 
         const obj = this.canvas.getActiveObject();
         if (obj && obj.type === 'image') {
@@ -64,25 +69,21 @@ export class CropManager {
             return;
         }
 
-        // Store reference LOCALLY because discardActiveObject() triggers selection:cleared
-        // which calls checkSelection() and sets this.mainImage to null!
+        // Guardar referencia localmente antes de discardActiveObject()
         const img = this.mainImage;
-
-        // Ensure coords are up to date
         img.setCoords();
 
         console.log("[Diagnostic] Starting crop for image:", img);
 
         this.active = true;
         if (this.cropActions) this.cropActions.classList.remove('hidden');
-        if (this.cropBtn) this.cropBtn.classList.add('hidden'); // Ocultar botón principal
+        if (this.cropBtn) this.cropBtn.classList.add('hidden');
 
-        // 1. Bloquear todo el canvas excepto el área de recorte
+        // 1. Bloquear interactividad del resto de objetos del canvas
         this.canvas.discardActiveObject();
         this.canvas.forEachObject(o => o.selectable = false);
 
-        // 2. Crear overlay de recorte
-        // Ensure we retrieve values safely.
+        // 2. Crear overlay interactivo de selección
         const scaleX = img.scaleX || 1;
         const scaleY = img.scaleY || 1;
         const width = (img.width || 0) * scaleX;
@@ -99,7 +100,8 @@ export class CropManager {
             stroke: '#ffffff',
             strokeDashArray: [5, 5],
             strokeWidth: 2,
-            cornerColor: 'white',
+            cornerColor: '#0056b3',
+            cornerStrokeColor: '#ffffff',
             cornerSize: 10,
             transparentCorners: false,
             hasRotatingPoint: false,
@@ -113,6 +115,25 @@ export class CropManager {
         console.log("[Diagnostic] Crop overlay added.");
     }
 
+    drawCropOverlay() {
+        if (!this.active || this.isExporting || !this.selectionRect) return;
+
+        const ctx = this.canvas.getContext();
+        if (!ctx) return;
+
+        ctx.save();
+        const rect = this.selectionRect.getBoundingRect();
+
+        // Sombreado perimetral exterior con regla evenodd
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.55)';
+        ctx.beginPath();
+        ctx.rect(0, 0, this.canvas.width, this.canvas.height);
+        ctx.rect(rect.left, rect.top, rect.width, rect.height);
+        ctx.fill('evenodd');
+
+        ctx.restore();
+    }
+
     performCrop() {
         if (!this.selectionRect || !this.mainImage) {
             console.warn("[Diagnostic] performCrop: Missing selectionRect or mainImage");
@@ -123,14 +144,15 @@ export class CropManager {
 
         // 1. Obtener coordenadas del recorte relativas al Canvas
         const rect = this.selectionRect;
-
-        // Ajustamos las coordenadas visuales exactas
-        const left = rect.left - (rect.width * rect.scaleX) / 2; // Asumiendo origin center
+        const left = rect.left - (rect.width * rect.scaleX) / 2;
         const top = rect.top - (rect.height * rect.scaleY) / 2;
         const width = rect.width * rect.scaleX;
         const height = rect.height * rect.scaleY;
 
-        // 2. Exportar esa área del canvas a una imagen
+        // 2. Exportar el área recortada ocultando temporalmente la caja de selección y el sombreado
+        this.isExporting = true;
+        this.selectionRect.set('visible', false);
+
         const croppedDataURL = this.canvas.toDataURL({
             format: 'png',
             left: left,
@@ -140,24 +162,30 @@ export class CropManager {
             quality: 1
         });
 
-        // 3. Crear nueva imagen
-        // crossOrigin anonymous is good practice here too if we were loading external
+        this.selectionRect.set('visible', true);
+        this.isExporting = false;
+
+        // 3. Crear nueva imagen con el contenido recortado
         fabric.Image.fromURL(croppedDataURL, (newImg) => {
             if (!newImg) {
                 console.error("[Diagnostic] Failed to create cropped image.");
                 return;
             }
 
-            // Reemplazar imagen original
             newImg.set({
                 left: rect.left,
                 top: rect.top,
                 originX: 'center',
-                originY: 'center'
+                originY: 'center',
+                cornerColor: '#0ea5e9',
+                cornerStyle: 'circle',
+                borderColor: '#0ea5e9',
+                transparentCorners: false
             });
 
             this.canvas.remove(this.mainImage);
             this.canvas.add(newImg);
+            this.canvas.setActiveObject(newImg);
 
             this.endCrop();
             console.log("[Diagnostic] Crop complete. New image added.");
@@ -171,6 +199,7 @@ export class CropManager {
 
     endCrop() {
         this.active = false;
+        this.isExporting = false;
 
         // Limpiar UI
         if (this.cropActions) this.cropActions.classList.add('hidden');
